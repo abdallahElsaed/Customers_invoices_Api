@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api\V1;
 
+use App\Filter\V1\InvoiceFilter;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\V1\InvoiceResource;
 use App\Models\Invoice;
@@ -12,9 +13,19 @@ class InvoiceController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        return InvoiceResource::collection(Invoice::all());
+
+        $filter = new InvoiceFilter();
+
+        $queryItems = $filter->transform($request);
+
+        if (count($queryItems) ==  0 ) {
+            return  InvoiceResource::collection( Invoice::paginate());
+        }else{
+            $invoice = Invoice::where($queryItems)->paginate();
+            return InvoiceResource::collection( $invoice->appends($request->query()));//[['column' ,'operators' , 'value']]
+        }
     }
 
     /**
@@ -38,7 +49,6 @@ class InvoiceController extends Controller
      */
     public function show(Invoice $invoice)
     {
-        return new InvoiceResource($invoice);
     }
 
     /**
