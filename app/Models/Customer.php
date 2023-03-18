@@ -9,7 +9,7 @@ class Customer extends Model
 {
     use HasFactory;
 
-    public function Invoices()
+    public function invoices()
     {
         return $this->hasMany(Invoice::class);
     }
