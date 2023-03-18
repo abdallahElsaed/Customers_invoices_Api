@@ -4,12 +4,17 @@ namespace App\Http\Controllers\Api\V1;
 
 use App\Filter\V1\CustomerFilter;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\V1\StoreCustomerRequest;
+use App\Http\Requests\V1\UpdateCustomerRequest;
 use App\Http\Resources\V1\CustomerResource;
 use App\Models\Customer;
 use Illuminate\Http\Request;
 
+
 class CustomerController extends Controller
 {
+
+    use ApiResponseTrait ;
     /**
      * Display a listing of the resource.
      */
@@ -27,16 +32,19 @@ class CustomerController extends Controller
             $customer = Customer::with('invoices');
         }
 
-        return CustomerResource::collection($customer->paginate()->appends($request->query())); //[['column' ,'operators' , 'value']]
+        $data = CustomerResource::collection($customer->paginate()->appends($request->query())); //[['column' ,'operators' , 'value']]
+        return $this->apiResponse($data, 'ok', 200);
 
     }
 
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(StoreCustomerRequest $request)
     {
-        //
+
+        $data =new CustomerResource(Customer::create($request->all()));
+        return  $this->apiResponse($data, 'new user added', 200);
     }
 
     /**
@@ -48,18 +56,20 @@ class CustomerController extends Controller
         if ($includeInvoice) {
         return new CustomerResource($customer->loadMissing('invoices'));
         }
-        return new CustomerResource($customer);
+        $data= new CustomerResource($customer);
+        return $this->apiResponse($data, 'ok', 200);
     }
 
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(UpdateCustomerRequest $request, Customer $customer)
     {
-        //
+        $customer = $customer->update($request->all());
+        return $this->apiResponse($customer, 'user updated', 200);
     }
-
+    
     /**
      * Remove the specified resource from storage.
      */
