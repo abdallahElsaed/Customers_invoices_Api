@@ -69,7 +69,7 @@ class CustomerController extends Controller
         $customer = $customer->update($request->all());
         return $this->apiResponse($customer, 'user updated', 200);
     }
-    
+
     /**
      * Remove the specified resource from storage.
      */
